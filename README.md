@@ -1,66 +1,189 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Mini Transaction Service
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![PHP](https://img.shields.io/badge/PHP-8.2-blue)
+![Laravel](https://img.shields.io/badge/Laravel-11-red)
+![JWT](https://img.shields.io/badge/JWT-auth-orange)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-## About Laravel
+Mini Transaction Service adalah **RESTful API** berbasis Laravel 11 untuk manajemen user dan transaksi (DEBIT / CREDIT) dengan autentikasi JWT.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## ⚡ Setup Project
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+1. **Clone repository:**
 
-## Learning Laravel
+```bash
+git clone https://github.com/username/mini-transaction-service.git
+cd mini-transaction-service
+```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+2. **Install dependencies:**
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```bash
+composer install
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+3. **Copy environment file:**
 
-## Laravel Sponsors
+```bash
+cp .env.example .env
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+4. **Sesuaikan konfigurasi database di `.env` (PostgreSQL):**
 
-### Premium Partners
+```dotenv
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=mini_transaction_db
+DB_USERNAME=postgres
+DB_PASSWORD=secret
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+5. **Setup JWT Authentication (`tymon/jwt-auth`):**
 
-## Contributing
+```bash
+php artisan vendor:publish --provider="PHPOpenSourceSaver\JWTAuth\Providers\LaravelServiceProvider"
+php artisan jwt:secret
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+* Ini akan generate `JWT_SECRET` di `.env`.
 
-## Code of Conduct
+6. **Generate application key:**
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+php artisan key:generate
+```
 
-## Security Vulnerabilities
+7. **Migrasi database:**
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+php artisan migrate
+```
 
-## License
+8. **Generate dokumentasi Swagger:**
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+php artisan l5-swagger:generate
+```
+
+9. **Jalankan server:**
+
+```bash
+php artisan serve
+```
+
+Server berjalan di `http://127.0.0.1:8000`.
+
+---
+
+## 🏗️ Arsitektur Sistem
+
+```
+Mini Transaction Service (Laravel 11)
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── AuthController.php        # Registrasi, login, logout, refresh, me
+│   │   │   └── TransactionController.php # CRUD transaksi
+│   │   └── Middleware/
+│   ├── Models/
+│   │   ├── User.php
+│   │   └── Transaction.php
+│   ├── Events/
+│   │   └── TransactionCreated.php
+├── database/
+│   ├── migrations/
+│   └── seeders/ (opsional)
+├── routes/
+│   └── api.php                          # Semua route API
+├── storage/
+│   └── api-docs/
+│       └── api-docs.json                # Dokumentasi Swagger JSON
+├── config/
+│   └── jwt.php                          # Konfigurasi JWT
+├── composer.json
+└── README.md
+```
+
+---
+
+## 🔑 Fitur Utama
+
+* **User Management**: Registrasi, login, logout, refresh token, lihat data user.
+* **Transaction Management**: DEBIT / CREDIT dengan status `PENDING` / `COMPLETED`.
+* **JWT Authentication**: Token-based authentication untuk semua endpoint.
+* **Event-driven**: Event `TransactionCreated` untuk integrasi dengan Wallet Service / notifikasi.
+* **Swagger Documentation**: Auto-generated OpenAPI 3.0 di `storage/api-docs/api-docs.json`.
+
+---
+
+## 🧰 API Endpoints
+
+| Endpoint                  | Method | Auth | Description                       |
+| ------------------------- | ------ | ---- | --------------------------------- |
+| `/api/auth/register`      | POST   | ❌    | Registrasi user baru              |
+| `/api/auth/login`         | POST   | ❌    | Login dan dapatkan token JWT      |
+| `/api/auth/refresh`       | POST   | ✅    | Refresh token JWT                 |
+| `/api/auth/logout`        | POST   | ✅    | Logout / invalidate token         |
+| `/api/auth/me`            | GET    | ✅    | Ambil data user yang sedang login |
+| `/api/transactions`       | POST   | ✅    | Buat transaksi DEBIT / CREDIT     |
+| `/api/transactions/{id}`  | GET    | ✅    | Detail transaksi                  |
+| `/api/users/{id}/balance` | GET    | ✅    | Ambil saldo user                  |
+
+> **Catatan:** Semua endpoint yang membutuhkan auth harus menyertakan header:
+>
+> ```http
+> Authorization: Bearer <token>
+> ```
+
+---
+
+## 📄 Dokumentasi API
+
+* File dokumentasi Swagger JSON:
+
+```
+storage/api-docs/api-docs.json
+```
+
+* Bisa dibuka di [Swagger Editor](https://editor.swagger.io/) atau di-import ke Postman.
+
+---
+
+## 🔧 Testing
+
+* **Unit & Integration Test Coverage:** Minimal 70%.
+* **Testing Tools:** PHPUnit dengan mocking service eksternal.
+* **Skenario Tes:**
+
+  * Saldo tidak cukup → transaksi gagal.
+  * Double request transaksi → pastikan idempotent handling.
+  * Retry mechanism berjalan untuk transaksi gagal.
+
+Jalankan testing:
+
+```bash
+php artisan test --coverage
+```
+
+* Hasil testing menampilkan persentase coverage.
+
+---
+
+## ⚙️ Konfigurasi JWT
+
+* File konfigurasi: `config/jwt.php`
+* Secret disimpan di `.env` sebagai `JWT_SECRET`.
+* Token default berlaku 60 menit (TTL), bisa diubah di config.
+
+---
+
+## 📄 License
+
+MIT License © 2025
+
+```
+```
